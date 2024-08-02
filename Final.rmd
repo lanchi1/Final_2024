@@ -18,23 +18,313 @@ FinalDat <-read.csv(file="finalSumr2024.csv",header=TRUE)
 FinalData <- FinalDat  %>% select(-one_of("X"))
 FinalData <- FinalData %>%
 mutate(across(where(is.character), as.factor))
+FinalData$treatment <- relevel(FinalData$treatment,ref="placebo")
+FinalData$infected <- relevel(FinalData$infected,ref="OK")
+Males = filter(FinalData, sex =="Male")
+Females = filter(FinalData, sex =="Female")
+LGBTQ = filter(FinalData, LGBTQ =="LGBTQ")
+Druguser = filter(FinalData, DrugUser =="yes")
 ```
 
 # Introduction
 
 A new  preventative vaccine (covid921) is under test in clinical trials. Given the nature of this vaccine it is suspected that the drug may exhibit different effectiveness across the variety of subpopulations tracked. Consider population subgroups by gender( guys and gals), drug use, and sexual orientation. Write a complete report that separately considers this drug for each subgroup and your recommendations as to whether people in the subgroup should take the vaccine. Structure your report in four sections each devoted to one of the four subgroups, use null and alternative hypothesis statements and correct statistical verbage when referencing p-values in conclusions.
 
+
 ## Males
+
+```{r}
+dd2 <- FinalDat %>% group_by(infected,treatment) %>% summarize(count=n()) %>% mutate(prcnt=count/sum(count))
+```
+
+
+# the group_by followed by summarize(count=n())
+
+```{r}
+basicC <- ggplot(dd2,aes(x=infected,y=count,fill=treatment))
+basicC + geom_bar(stat="identity",position="dodge")
+```
+
+
+
+#Now for percentage plot
+
+```{r}
+basicCC <- ggplot(dd2,aes(x=infected,y=prcnt*100,fill=treatment))
+basicCC + geom_bar(stat="identity", position = "dodge")
+```
+
+This Plot Represents the population of males and shows the treatment and infected of Covid 19, As well as shows us which one worked better and showed better results for those who got Covid 19 that are male like the placebo or the vaccine. In this plot it shows that the number of people who took the placebo worked a lot better for them than the males who had taken the vaccine. Those who had taken the vaccine i belive were more exposed to getting Covid 19 than those who had taken the placebo and the males on the placebo side seemed to work a lot better for them. The percentage seems to be at 100% when i open up this plot.
+
+
+
+
+# Numberical results
+
+```{r}
+table1 <- xtabs(~infected + treatment, data=Males)
+rowPerc(table1)
+colPerc(table1)
+```
+
+These Numerical Results Shown above, basically are supposed to show percentages of the infected and the treatment of those with Covid 19, after they had taken the vaccine or the placebo. In the results above the Covid 19 is shown to be about 100 while the males who were Ok are also shown at a percentage of 100% but Covid 19 at the bottom seems to show NaN and Ok at NaN as well but the total for both is 100% in these numerical results for the males.
+
+
+
+#Inferential
+
+```{r}
+fisher_result <- fisher.test(table1)
+fisher.test(table1)
+malesfish <- fisher.test(table1)
+malesfish
+```
+
+ The Information for the fishers Exact Data or the Inferential results show, the p value is at 1 while the alternative hypothesis is at true odds ratio is not equal to 1 percent of 95 percent Confidence Interval. Then as the results show the Odds ratio is 0, for the exact data it is the same and still shows the result of 0. So the males who got the placebo were not likely to get Covid 19 while those who had the vaccine i belive are much more likely to get Covid all while still taking the vaccine.
+
+
+```{r}
+effect <- malesfish$p.value/(malesfish$p.value +1)
+effectivenessmale = malesfish$estimate/(malesfish$estimate +1)*100
+print(effectivenessmale)
+```
+
+
+
+```{r}
+low=(malesfish$conf.int[1]/(malesfish$conf.int[1] +1))*100
+hi=(malesfish$conf.int[2]/(malesfish$conf.int[2] +1))*100
+options(digits=2)
+```
+
+
+## Effective Confidence Interval
+
+As Shown above, the effectiveness for Covid 19 for the males is at 0% as shown that shows us that the vaccine is not effective at all. Based on the plot shown above the placebo i think is the one that may show much better results than those who had taken the vaccine. So now that we know we can continue and onclude that the placebo i belive was the most effective while the vaccine was not.
+
 
 
 ## Females
 
+```{r}
+dd2 <- Females %>% group_by(infected,treatment) %>% summarize(count=n()) %>% mutate(prcnt=count/sum(count))
+```
+
+
+
+# the group_by followed by summarize(count=n())
+
+```{r}
+basicC <- ggplot(dd2,aes(x=infected,y=count,fill=treatment))
+basicC + geom_bar(stat="identity",position="dodge")
+```
+
+
+
+#Now for percentage plot
+
+```{r}
+basicCC <- ggplot(dd2,aes(x=infected,y=prcnt*100,fill=treatment))
+basicCC + geom_bar(stat="identity", position = "dodge")
+```
+
+This Plot Represents the population of females and shows the treatment and infected of Covid 19, As well as shows us which one worked better and showed better results for those who got Covid 19 that are female like the placebo or the vaccine. In this plot it shows that the number of people who took the placebo worked a lot better for them than the females who had taken the vaccine. Those who had taken the vaccine i belive were more exposed to getting Covid 19 than those who had taken the placebo and the females on the placebo side seemed to work a lot better for them. The percentage seems to be at 100% when i open up this plot.
+
+
+# Numberical results
+
+```{r}
+table1 <- xtabs(~infected + treatment, data=Females)
+rowPerc(table1)
+colPerc(table1)
+```
+
+These Numerical Results Shown above, basically are supposed to show percentages of the infected and the treatment of those with Covid 19, fter they had taken the vaccine or the placebo. In the results above the Covid 19 is shown to be abot 100 while the females who were Ok are also shown at a percentage of 100% but Covid 19 at the bottom seems to show NaN and Ok at NaN as well but the total for both is 100% in these numerical results for the females.
+
+
+#Inferential
+
+```{r}
+fisher_result <- fisher.test(table1)
+fisher.test(table1)
+Femalesfish <- fisher.test(table1)
+Femalesfish
+```
+
+The Information for the fishers Exact Data or the Inferential results show, the p value is at 1 while the alternative hypothesis is at true odds ratio is not equal to 1 percent of 95 percent Confidence Interval. Then as the results show the Odds ratio is 0, for the exact data it is the same and still shows the result of 0. So the females who got the placebo were not likely to get Covid 19 while those who had the vaccine i believe are much more likely to get Covid all while still taking the vaccine.
+
+
+
+
+```{r}
+effect <- Femalesfish$p.value/(Femalesfish$p.value +1)
+effectivenessfemales = Femalesfish$estimate/(Femalesfish$estimate +1)*100
+print(effectivenessfemales)
+```
+
+
+
+```{r}
+low=(Femalesfish$conf.int[1]/(Femalesfish$conf.int[1] +1))*100
+hi=(Femalesfish$conf.int[2]/(Femalesfish$conf.int[2] +1))*100
+options(digits=2)
+```
+
+
+## Effective Confidence Interval
+
+As Shown above, the effectiveness for Covid 19 for the females is at 0% as shown that shows us that the vaccine is not effective at all. Based on the plot shown above the placebo i think is the one that may show much better results than those who had taken the vaccine. So now that we know we can continue and onclude that the placebo i belive was the most effective while the vaccine was not.
+
 
 ## LGBTQ
+
+```{r}
+dd2 <-FinalDat%>% group_by(infected,treatment) %>% summarize(count=n()) %>% mutate(prcnt=count/sum(count))
+```
+
+
+# the group_by followed by summarize(count=n())
+
+```{r}
+basicC <- ggplot(dd2,aes(x=infected,y=count,fill=treatment))
+basicC + geom_bar(stat="identity",position="dodge")
+```
+
+
+#Now for percentage plot
+
+```{r}
+basicCC <- ggplot(dd2,aes(x=infected,y=prcnt*100,fill=treatment))
+basicCC + geom_bar(stat="identity", position = "dodge")
+```
+
+This Plot Represents the population of LGBTQ and shows the treatment and infected of Covid 19, As well as shows us which one worked better and showed better results for those who got Covid 19 that are LGBTQ like the placebo or the vaccine. In this plot it shows that the number of people who took the placebo worked a lot better for them than the LGBTQ who had taken the vaccine. Those who had taken the vaccine i believe were more exposed to getting Covid 19 than those who had taken the placebo and the LGBTQ on the placebo side seemed to work a lot better for them. The percentage seems to be at 100% when i open up this plot.
+
+
+# Numberical results
+
+```{r}
+table1 <- xtabs(~infected + treatment, data=LGBTQ)
+rowPerc(table1)
+colPerc(table1)
+```
+
+These Numerical Results Shown above, basically are supposed to show percentages of the infected and the treatment of those with Covid 19, After they had taken the vaccine or the placebo. In the results above the Covid 19 is shown to be aboUt 100 while the LGBTQ who were Ok are also shown at a percentage of 100% but Covid 19 at the bottom seems to show NaN and Ok at NaN as well but the total for both is 100% in these numerical results for the LGBTQ.
+
+
+
+#Inferential
+
+```{r}
+fisher_result <- fisher.test(table1)
+fisher.test(table1)
+LGBTQfish <- fisher.test(table1)
+LGBTQfish
+```
+
+
+The Information for the fishers Exact Data or the Inferential results show, the p value is at 1 while the alternative hypothesis is at true odds ratio is not equal to 1 percent of 95 percent Confidence Interval. Then as the results show the Odds ratio is 0, for the exact data it is the same and still shows the result of 0. So the LGBTQ who got the placebo were not likely to get Covid 19 while those who had the vaccine i believe are much more likely to get Covid all while still taking the vaccine.
+
+
+```{r}
+effect <- LGBTQfish$p.value/(LGBTQfish$p.value +1)
+effectivenessLGBTQ = LGBTQfish$estimate/(LGBTQfish$estimate +1)*100
+print(effectivenessLGBTQ)
+```
+
+
+
+```{r}
+low=(LGBTQfish$conf.int[1]/(LGBTQfish$conf.int[1] +1))*100
+hi=(LGBTQfish$conf.int[2]/(LGBTQfish$conf.int[2] +1))*100
+options(digits=2)
+```
+
+
+## Effective Confidence Interval
+
+As Shown above, the effectiveness for Covid 19 for the females is at 0% as shown that shows us that the vaccine is not effective at all. Based on the plot shown above the placebo i think is the one that may show much better results than those who had taken the vaccine. So now that we know we can continue and onclude that the placebo i belive was the most effective while the vaccine was not.
 
 
 
 ## Druggies
 
+```{r}
+dd2 <- FinalDat %>% group_by(infected,treatment) %>% summarize(count=n()) %>% mutate(prcnt=count/sum(count))
+```
+
+
+# the group_by followed by summarize(count=n())
+
+```{r}
+basicC <- ggplot(dd2,aes(x=infected,y=count,fill=treatment))
+basicC + geom_bar(stat="identity",position="dodge")
+```
+
+
+
+#Now for percentage plot
+
+```{r}
+basicCC <- ggplot(dd2,aes(x=infected,y=prcnt*100,fill=treatment))
+basicCC + geom_bar(stat="identity", position = "dodge")
+```
+
+
+This Plot Represents the population of drugusers and shows the treatment and infected of Covid 19, As well as shows us which one worked better and showed better results for those who got Covid 19 that are drugusers like the placebo or the vaccine. In this plot it shows that the number of people who took the placebo worked a lot better for them than the drugusers who had taken the vaccine. Those who had taken the vaccine i believe were more exposed to getting Covid 19 than those who had taken the placebo and the drugusers on the placebo side seemed to work a lot better for them. The percentage seems to be at 100% when i open up this plot.
+
+
+# Numberical results
+
+```{r}
+table1 <- xtabs(~infected + treatment, data=Druguser)
+rowPerc(table1)
+colPerc(table1)
+```
+
+These Numerical Results Shown above, basically are supposed to show percentages of the infected and the treatment of those with Covid 19, after they had taken the vaccine or the placebo. In the results above the Covid 19 is shown to be about 100 while the drugusers who were Ok are also shown at a percentage of 100% but Covid 19 at the bottom seems to show NaN and Ok at NaN as well but the total for both is 100% in these numerical results for the drugusers.
+
+
+
+#Inferential
+
+```{r}
+fisher_result <- fisher.test(table1)
+fisher.test(table1)
+Drugusersfish <- fisher.test(table1)
+Drugusersfish
+```
+
+The Information for the fishers Exact Data or the Inferential results show, the p value is at 3e-12 while the alternative hypothesis is at true odds ratio is not equal to 1 percent of 95 percent Confidence Interval. Then as the results show the Odds ratio is 11, for the exact data it is the same and still shows the result of 11. So the drugusers who got the placebo were not likely to get Covid 19 while those who had the vaccine i believe are much more likely to get Covid all while still taking the vaccine.
+
+
+```{r}
+effect <- Drugusersfish$p.value/(Drugusersfish$p.value +1)
+effectivenessdrug = Drugusersfish$estimate/(Drugusersfish$estimate +1)*100
+print(effectivenessdrug)
+```
+
+
+```{r}
+low=(Drugusersfish$conf.int[1]/(Drugusersfish$conf.int[1] +1))*100
+hi=(Drugusersfish$conf.int[2]/(Drugusersfish$conf.int[2] +1))*100
+options(digits=2)
+```
+
+
+
+## Effective Confidence Interval
+
+As Shown above, the effectiveness for Covid 19 for the drugusers is at 92% as shown that shows us that the vaccine is effective. The odds ratio is approximately how effective the vaccine is. The odds ratio for the drug users can be seen above as 92.
 
 # Overall Results and Conclusions
+
+The covid-19 vaccine was not effective in protecting males against the contraction of the disease. The covid-19 effectiveness was `r effectivenessdrug`.
+
+The covid-19 vaccine was highly successful in protecting women against covid-19.The covid-19 effectiveness was `r effectivenessfemales`. Women were protected the most with this particular vaccine.
+The covid-19 vaccine was not effective in treating people who identified as gay. The individuals who identified as gay and took the vaccine were two and a half times as likely to get covid-19 than those taking the placebo.The covid-19 effectiveness was `r effectivenessLGBTQ` for gay individuals.
+The individuals that were drugusers were effectively protected by the vaccine though not quite as much as the females(women). 
+The drugusers that took the vaccine were half as likely to get covid-19 than those taking the placebo.The covid-19 effectiveness was `r effectivenessdrug` for drugusers.
+
+
+
